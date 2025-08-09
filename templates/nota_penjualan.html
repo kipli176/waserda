@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Nota Penjualan{% endblock %}
+
+{% block content %}
+<pre class="font-mono text-sm whitespace-pre border p-4 bg-white max-w-sm mx-auto">
+==============================
+        TOKO WASERDA
+     Tanggal: {{ tanggal }}
+     Pelanggan: {{ nama_pelanggan }}
+------------------------------
+{% for item in item_list %}
+ {{ item.jumlah }}x {{ item.nama|truncate(15, True) }}{{ "%7s"|format(item.harga) }}
+{% endfor %}
+------------------------------
+Total: {{ "%24s"|format(total) }}
+Catatan: {{ catatan }}
+==============================
+Terima kasih 🙏
+</pre>
+
+<div class="text-center mt-4">
+    <button onclick="window.print()" class="bg-gray-700 text-white px-4 py-2 rounded">
+        🖨️ Cetak Struk
+    </button>
+    <a href="/penjualan" class="ml-4 text-blue-600">← Kembali</a>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Toko{% endblock %}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<!-- Navigation Bar -->
+<nav class="bg-white shadow mb-6">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- Logo -->
+    <div class="text-lg font-bold text-green-600">🧾 Kasir Waserda</div>
+
+    <!-- Mobile Dropdown -->
+    <select
+      id="mobile-nav"
+      class="block lg:hidden w-auto border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:border-blue-500"
+      onchange="if (this.value) window.location.href=this.value">
+      <option value="" >📁 Navigasi</option>
+      <option value="/barang">📦 Data Barang</option>
+      <option value="/pembelian">🛒 Pembelian</option>
+      <option value="/penjualan">💰 Penjualan</option>
+      <option value="/pelanggan">👥 Pelanggan</option>
+      <option value="/pengeluaran">💸 Pengeluaran</option>
+      <option value="/pemodal">🧑‍💼 Pemodal</option>
+      <option value="/laporan">📊 Laporan</option>
+    </select>
+
+    <!-- Desktop Menu -->
+    <div class="hidden lg:flex space-x-4">
+      <a href="/barang" class="text-gray-700 hover:text-blue-600">📦 Data Barang</a>
+      <a href="/pembelian" class="text-gray-700 hover:text-blue-600">🛒 Pembelian</a>
+      <a href="/penjualan" class="text-gray-700 hover:text-blue-600">💰 Penjualan</a>
+      <a href="/pelanggan" class="text-gray-700 hover:text-blue-600">👥 Pelanggan</a>
+      <a href="/pengeluaran" class="text-gray-700 hover:text-blue-600">💸 Pengeluaran</a>
+      <a href="/pemodal" class="text-gray-700 hover:text-blue-600">🧑‍💼 Pemodal</a>
+      <a href="/laporan" class="text-gray-700 hover:text-blue-600">📊 Laporan</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Auto-select script -->
+<script>
+  const currentPath = window.location.pathname;
+  const select = document.getElementById('mobile-nav');
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value === currentPath) {
+      select.selectedIndex = i;
+      break;
+    }
+  }
+</script>
+
+ 
+
+    <!-- Content -->
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    
+<script src="https://cdn.jsdelivr.net/npm/autonumeric@4.6.0"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.harga-format').forEach(function (el) {
+      new AutoNumeric(el, {
+        digitGroupSeparator: '.',
+        decimalCharacter: ',',
+        decimalPlaces: 0,
+        unformatOnSubmit: true
+      });
+    });
+  });
+</script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

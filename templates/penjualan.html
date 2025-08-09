@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Penjualan{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4 text-gray-700">📦 Riwayat Penjualan</h2>
+
+<a href="/penjualan?tambah=1" class="mb-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    + Tambah Penjualan
+</a>
+
+<table id="tabelPenjualan" class="display w-full text-sm">
+  <thead>
+    <tr>
+      <th>Tanggal</th>
+      <th>Pelanggan</th>
+      <th>Total</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for id_trans, t in transaksi.items() %}
+    <tr onclick="window.location='?lihat={{ id_trans }}'" class="hover:bg-yellow-100 cursor-pointer">
+      <td>{{ t.tanggal }}</td>
+      <td>{{ t.nama_pelanggan }}</td>
+      <td>{{ t.total | rupiah }}</td>
+      <td> 
+        <a href="/penjualan?edit={{ id_trans }}" class="inline-block bg-blue-600 text-white px-2 py-2 rounded hover:bg-blue-700 hover:underline">Edit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function() {
+    $('#tabelPenjualan').DataTable({
+      paging: true,
+      pageLength: 10,
+      searching: true,
+      ordering: false,
+      lengthChange: false,
+      info: false
+    });
+  });
+</script>
+{% endblock %}

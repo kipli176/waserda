@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Laporan Bulanan{% endblock %}
+
+{% block content %}
+<h2 class="text-xl font-semibold mb-2">Laporan Penjualan Bulan {{ bulan }}/{{ tahun }}</h2>
+<form method="get" class="mb-4 flex flex-wrap items-center gap-2">
+    <label class="flex items-center gap-1">
+        <span class="text-gray-700">Bulan:</span>
+        <input name="bulan" value="{{ bulan }}" class="border p-1 w-20 rounded">
+    </label>
+    
+    <label class="flex items-center gap-1">
+        <span class="text-gray-700">Tahun:</span>
+        <input name="tahun" value="{{ tahun }}" class="border p-1 w-24 rounded">
+    </label>
+
+    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+        Tampilkan
+    </button>
+</form>
+
+<div class="bg-white border p-4 rounded shadow"> 
+   <!-- Baris-baris keterangan dan nominal -->
+ <hr class="my-4">
+ <div class="flex justify-between">
+  <span>Dari Pemodal:</span>
+  <span class="font-semibold">{{ total_modal|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Kas Sisa Bulan Lalu:</span>
+  <span class="font-semibold">{{ kas_manual|rupiah }}</span>
+</div>
+{% if pengeluaran_dari_kas > 0 %}
+<div class="flex justify-between">
+  <span>Pengeluaran dari Kas:</span>
+  <span class="font-semibold text-green-600">({{ pengeluaran_dari_kas|rupiah }})</span>
+</div>
+<div class="flex justify-between">
+  <span>Pengeluaran Toko dari Pemodal:</span>
+  <span class="font-semibold">{{ pengeluaran_dari_pemodal|rupiah }}</span>
+</div>
+{% endif %}
+<!-- <div class="flex justify-between">
+  <span>Total Pengeluaran:</span>
+  <span class="font-semibold">{{ total_pengeluaran|rupiah }}</span>
+</div> -->
+ <hr class="my-4">
+<div class="flex justify-between">
+  <span>Modal Belanja Barang:</span>
+  <span class="font-semibold">{{ modal_belanja|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Nilai Barang Saat Ini:</span>
+  <span class="font-semibold">{{ total_nilai_barang|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span><strong>Belum dibelanjakan:</strong></span>
+  <span class="font-bold text-black">{{ sisa_kas1|rupiah }}</span>
+</div>
+<!-- <hr class="my-4">
+
+
+<div class="flex justify-between">
+  <span>Kas Sisa Bulan Lalu:</span>
+  <span class="font-semibold">{{ kas_manual|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Pengeluaran dari Kas:</span>
+  <span class="font-semibold text-green-600">({{ pengeluaran_dari_kas|rupiah }})</span>
+</div>
+<div class="flex justify-between">
+  <span>Modal Belanja Barang:</span>
+  <span class="font-semibold">{{ modal_belanja|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Dari Pemodal:</span>
+  <span class="font-semibold">{{ total_modal|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Belanja Kebutuhan Toko:</span>
+  <span class="font-semibold">{{ total_pengeluaran|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Pengeluaran dari Pemodal:</span>
+  <span class="font-semibold">{{ pengeluaran_dari_pemodal|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Nilai Barang Saat Ini:</span>
+  <span class="font-semibold">{{ total_nilai_barang|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span><strong>Sisa Uang Tunai:</strong></span>
+  <span class="font-semibold">{{ sisa_kas1|rupiah }}</span>
+</div> -->
+
+<hr class="my-4">
+
+<div class="flex justify-between">
+  <span>Total Penjualan Bulan Ini:</span>
+  <span class="font-semibold">{{ total_penjualan|rupiah }}</span>
+</div>
+<div class="flex justify-between">
+  <span>Total Laba Penjualan:</span>
+  <span class="font-semibold">{{ total_laba|rupiah }}</span>
+</div>
+{% if total_laba > 0 %}
+  <div class="flex justify-between">
+    <span>Bagian Karyawan (30%):</span>
+    <span class="font-semibold">{{ bagian_kamu|rupiah }}</span>
+  </div>
+  <div class="flex justify-between">
+    <span>Bagian Kas Waserda(35%):</span>
+    <span class="font-semibold">{{ bagian_kas|rupiah }}</span>
+  </div>
+  <div class="flex justify-between">
+    <span>Bagian Pemodal (35%):</span>
+    <span class="font-semibold">{{ bagian_pemodal|rupiah }}</span>
+  </div>
+{% else %}
+  <div class="text-center text-gray-600 mt-2 italic">
+    Tidak ada laba yang dibagikan bulan ini.
+  </div>
+{% endif %}
+ 
+<hr class="my-4">
+<div class="flex justify-between">
+  <span><strong>Sisa Uang Tunai:</strong></span>
+  <span class="font-bold text-black">{{ sisa_kas2|rupiah }}</span>
+</div>
+</div>
+
+
+<h3 class="mt-6 mb-2 font-semibold">Rangkuman Harian:</h3>
+<table class="w-full text-sm border">
+    <tr class="bg-gray-200">
+        <th class="border p-1 text-left">Tanggal</th>
+        <th class="border p-1 text-right">Penjualan</th>
+        <th class="border p-1 text-right">Laba</th>
+    </tr>
+    {% for tgl, data in ringkasan %}
+    <tr>
+        <td class="border p-1">{{ tgl }}</td>
+        <td class="border p-1 text-right">{{ data.penjualan|rupiah }}</td>
+        <td class="border p-1 text-right">{{ data.laba|rupiah }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="/" class="inline-block mt-4 text-blue-600">← Kembali ke Beranda</a>
+{% endblock %}

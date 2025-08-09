@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Data Barang{% endblock %}
+
+{% block content %}
+        <h2 class="text-2xl font-bold mb-4 text-gray-700">📦 Input Barang Baru</h2>
+            <form method="post" class="space-y-4">
+                <!-- ID Barang di-generate otomatis, ditampilkan saja --> 
+                    <input type="hidden" name="id_barang" value="{{ item_edit[0] if item_edit else '(otomatis)' }}" readonly class="w-full border border-gray-300 p-2 rounded">
+                 <div>
+                    <label class="block text-gray-600">Nama Barang</label>
+                    <input type="text" name="nama_barang" list="daftarBarang"
+                            value="{{ item_edit[1] if item_edit else '' }}"
+                            class="w-full border border-gray-300 p-2 rounded uppercase" required>
+                    <datalist id="daftarBarang">
+                        {% for row in data %}
+                        <option value="{{ row[1] }}">
+                        {% endfor %}
+                    </datalist>
+                    </div>
+
+                    <div class="flex space-x-4 mt-4">
+                    <div class="flex-1">
+                        <label class="block text-gray-600">Satuan</label>
+                        <select name="satuan" class="w-full border border-gray-300 p-2 rounded" required>
+                        {% for s in satuan_options %}
+                            <option value="{{ s }}" {% if item_edit and s == item_edit[2] %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="flex-1">
+                        <label class="block text-gray-600">Kategori</label>
+                        <select name="kategori" class="w-full border border-gray-300 p-2 rounded">
+                        {% for k in kategori_options %}
+                            <option value="{{ k }}" {% if item_edit and k == item_edit[3] %}selected{% endif %}>{{ k }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    </div>
+
+
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    {{ "Update Barang" if item_edit else "Tambah Barang" }}
+                </button>
+            </form>
+
+    </div>
+
+    <div class="max-w-xl mx-auto mt-6 p-6 bg-white shadow-md rounded">
+        <h3 class="text-xl font-semibold mb-2 text-gray-700">📋 Daftar Barang</h3>
+            <table id="tabelBarang" class="display w-full text-sm">
+            <thead>
+                <tr>
+                <th>Barang</th>
+                <th>Stok</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr class="hover:bg-gray-100 py-2">
+                    <td>
+                    <a href="/barang?edit={{ row[0] }}"
+                    class="{% if row[4] == 0 %}text-red-600{% else %}text-blue-600{% endif %} hover:underline font-semibold">
+                     {{ row[1] }} ({{ row[4] }} {{ row[2] }}) [{{ row[3] }}]
+                    </a>
+                    </td>
+                    <td>{{ row[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    
+  document.addEventListener("DOMContentLoaded", function () {
+    const namaInput = document.querySelector('input[name="nama_barang"]');
+    if (namaInput) {
+      namaInput.addEventListener("input", function () {
+        this.value = this.value.toUpperCase();
+      });
+    }
+});
+  $(document).ready(function() {
+    $('#tabelBarang').DataTable({
+      paging: true,
+      pageLength: 10,
+      searching: true, 
+      lengthChange: false,
+      info: false
+    });
+  });
+</script>
+{% endblock %}

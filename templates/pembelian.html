@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Pembelian{% endblock %}
+{% block content %}
+
+<style>
+/* Container select2 */
+.select2-container {
+  width: 100% !important; /* Pastikan selalu full width */
+  display: block;
+  margin-bottom: 0.5rem; /* Tambahkan jarak bawah */
+}
+
+/* Area yang terlihat (single select) */
+.select2-container--default .select2-selection--single {
+  min-height: 40px;
+  box-sizing: border-box;
+  border-radius: 0.375rem; /* Tailwind's rounded-md */
+  border: 1px solid #d1d5db; /* Tailwind's border-gray-300 */
+  background-color: #fff;
+  padding-left: 0.75rem; /* Tailwind's pl-3 */
+  padding-right: 2rem; /* space for arrow */
+  display: flex;
+  align-items: center;
+}
+
+/* Teks yang ditampilkan */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #374151; /* Tailwind's text-gray-700 */
+  line-height: 1.5;
+  padding: 0; /* padding handled by container flex */
+  margin: 0;
+}
+
+/* Placeholder text */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #9ca3af; /* Tailwind's text-gray-400 */
+}
+
+/* Dropdown arrow */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100%;
+  width: 2rem;
+  top: 0;
+  right: 0;
+  background-color: #f3f4f6; /* Tailwind's bg-gray-200 */
+  border-left: 1px solid #d1d5db; /* separator line */
+  border-radius: 0 0.375rem 0.375rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrow icon */
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #6b7280 transparent transparent transparent; /* Tailwind's text-gray-600 */
+}
+
+/* Clear button (if enabled) */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  color: #6b7280; /* Tailwind's text-gray-600 */
+}
+
+</style>
+<h2 class="text-2xl font-bold mb-4 text-gray-700">🛒 Input Pembelian Barang</h2>
+
+<form method="post" class="space-y-4 mb-6">
+
+    <!-- Jika sedang edit, kirim ID pembelian -->
+     {% if item_edit %}
+    <input type="hidden" name="id_pembelian" value="{{ item_edit[0] }}">
+    {% endif %}
+
+<div>
+    <label class="block text-gray-600">Pilih Barang</label>
+
+    {% if item_edit %}
+        <!-- Mode edit: select disabled dan ada hidden input -->
+        <select class="w-full border border-gray-300 p-2 rounded" disabled>
+            {% for b in barang_options %}
+            <option value="{{ b.id }}" {% if b.id == item_edit[2] %}selected{% endif %}>
+                {{ b.nama }} ({{ b.stok }} {{ b.satuan }})
+            </option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="id_barang" value="{{ item_edit[2] }}">
+    {% else %}
+        <!-- Mode tambah: select aktif -->
+        <select id="selectBarang" name="id_barang" required
+                class="w-full border border-gray-300 p-2 rounded">
+            {% for b in barang_options %}
+            <option value="{{ b.id }}">
+                {{ b.nama }} ({{ b.stok }} {{ b.satuan }})
+            </option>
+            {% endfor %}
+        </select>
+    {% endif %}
+</div>
+
+
+    <div class="flex space-x-4 mb-4">
+        <div class="flex-1">
+            <label class="block text-gray-600">Jumlah</label>
+            <input type="number" name="jumlah"
+                value="{{ item_edit[4] if item_edit else '' }}"
+                class="w-full border border-gray-300 p-2 rounded" required>
+        </div>
+
+        <div class="flex-1">
+            <label class="block text-gray-600">Harga Beli</label>
+            <input type="text" name="harga_beli"
+                value="{{ item_edit[5] if item_edit else '' }}"
+                class="harga-format w-full border border-gray-300 p-2 rounded" required>
+        </div>
+    </div>
+
+
+    <div>
+        <label class="block text-gray-600">Keterangan</label>
+        <input type="text" name="keterangan"
+               value="{{ item_edit[7] if item_edit and item_edit|length > 7 else '' }}"
+               class="w-full border border-gray-300 p-2 rounded uppercase">
+    </div>
+
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        {{ "Update Pembelian" if item_edit else "Simpan Pembelian" }}
+    </button>
+</form>
+</div>
+    <div class="max-w-xl mx-auto mt-6 p-6 bg-white shadow-md rounded">
+<h3 class="text-xl font-semibold mb-2 text-gray-700">📋 Riwayat Pembelian</h3>
+<table id="tabelPembelian" class="display w-full text-sm">
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Barang</th>
+            <th>Jumlah</th>
+            <th>Beli</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in pembelian_data %}
+            <tr>
+                <td>
+                    <a href="/pembelian?edit={{ row[0] }}" class="text-blue-600 hover:underline">
+                    {{ row[1] }} <!-- tanggal -->
+                    </a>
+                </td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+ 
+<script>
+    
+  document.addEventListener("DOMContentLoaded", function () {
+    const namaInput = document.querySelector('input[name="keterangan"]');
+    if (namaInput) {
+      namaInput.addEventListener("input", function () {
+        this.value = this.value.toUpperCase();
+      });
+    }
+});
+
+
+  $(document).ready(function() {
+    // Inisialisasi Select2 jika selectBarang ada (mode tambah)
+    if ($('#selectBarang').length) {
+      $('#selectBarang').select2({
+        placeholder: "Pilih Barang",
+        allowClear: true,
+        width: '100%' // supaya lebar penuh
+      });
+    }
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+    $('#tabelPembelian').DataTable({
+      paging: true,
+      pageLength: 10,
+      searching: true, 
+      lengthChange: false,
+      info: false
+    });
+  });
+</script>
+{% endblock %}

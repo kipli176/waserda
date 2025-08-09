@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Data Pelanggan{% endblock %}
+{% block content %}
+<h2 class="text-lg font-semibold mb-2">Data Pelanggan</h2>
+
+<form method="post" class="bg-white p-4 border rounded mb-4">
+    {% if item_edit %}
+        <input type="hidden" name="mode" value="edit">
+        <input type="hidden" name="id_pelanggan" value="{{ item_edit[0] }}">
+    {% endif %}
+
+    <div class="mb-2">
+        <label>Nama</label>
+        <input name="nama" value="{{ item_edit[1] if item_edit else '' }}"
+               required class="w-full border p-2 rounded uppercase">
+    </div>
+
+    <div class="mb-2">
+        <label>No. WA</label>
+        <input name="wa" id="wa" value="{{ item_edit[2] if item_edit else '' }}"
+               required class="w-full border p-2 rounded">
+    </div>
+
+    <button class="bg-blue-600 text-white px-4 py-2 rounded">
+        {% if item_edit %}Simpan Perubahan{% else %}Tambah{% endif %}
+    </button>
+</form>
+
+<table class="w-full text-sm border bg-white text-center">
+    <tr class="bg-gray-100">
+        <th class="border p-1">Nama</th>
+        <th class="border p-1">Nomor WA</th>
+    </tr>
+    {% for row in rows %}
+    <tr onclick="window.location='?edit={{ row[0] }}'" class="hover:bg-yellow-100 cursor-pointer">
+        <td class="border p-1">{{ row[1] }}</td>
+        <td class="border p-1">{{ row[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="/" class="inline-block mt-4 text-blue-600">← Kembali ke Beranda</a>
+{% endblock %}
+
+{% block scripts %} 
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const namaInput = document.querySelector('input[name="nama"]');
+    if (namaInput) {
+      namaInput.addEventListener("input", function () {
+        this.value = this.value.toUpperCase();
+      });
+    }
+    const waInput = document.getElementById("wa");
+
+    // Pastikan awalnya 62
+    if (!waInput.value.startsWith("62")) {
+      waInput.value = "62";
+    }
+
+    // Cegah hapus "62"
+    waInput.addEventListener("input", function () {
+      if (!this.value.startsWith("62")) {
+        const cursor = this.selectionStart;
+        this.value = "62" + this.value.replace(/^0+|^62+/, '');
+        this.setSelectionRange(cursor, cursor);
+      }
+    });
+
+    // Optional: saat input fokus, posisikan kursor di akhir
+    waInput.addEventListener("focus", function () {
+      setTimeout(() => {
+        this.setSelectionRange(this.value.length, this.value.length);
+      }, 0);
+    });
+  });
+</script>
+{% endblock %}

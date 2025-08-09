@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}Tambah Penjualan{% endblock %}
+
+{% block content %}
+<style>
+/* Container select2 */
+.select2-container {
+  width: 100% !important; /* Pastikan selalu full width */
+  display: block;
+  margin-bottom: 0.5rem; /* Tambahkan jarak bawah */
+}
+
+/* Area yang terlihat (single select) */
+.select2-container--default .select2-selection--single {
+  min-height: 40px;
+  box-sizing: border-box;
+  border-radius: 0.375rem; /* Tailwind's rounded-md */
+  border: 1px solid #d1d5db; /* Tailwind's border-gray-300 */
+  background-color: #fff;
+  padding-left: 0.75rem; /* Tailwind's pl-3 */
+  padding-right: 2rem; /* space for arrow */
+  display: flex;
+  align-items: center;
+}
+
+/* Teks yang ditampilkan */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #374151; /* Tailwind's text-gray-700 */
+  line-height: 1.5;
+  padding: 0; /* padding handled by container flex */
+  margin: 0;
+}
+
+/* Placeholder text */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #9ca3af; /* Tailwind's text-gray-400 */
+}
+
+/* Dropdown arrow */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100%;
+  width: 2rem;
+  top: 0;
+  right: 0;
+  background-color: #f3f4f6; /* Tailwind's bg-gray-200 */
+  border-left: 1px solid #d1d5db; /* separator line */
+  border-radius: 0 0.375rem 0.375rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrow icon */
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #6b7280 transparent transparent transparent; /* Tailwind's text-gray-600 */
+}
+
+/* Clear button (if enabled) */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  color: #6b7280; /* Tailwind's text-gray-600 */
+}
+
+</style>
+<h2 class="text-2xl font-bold mb-4 text-gray-700">🧾 Tambah Penjualan</h2>
+
+<form method="post" id="formPenjualan" class="space-y-4">
+    {% if edit %}
+    <input type="hidden" name="edit_id" value="{{ id_penjualan }}">
+    {% endif %}
+
+    <!-- Pilih Pelanggan -->
+    <div>
+        <label class="block text-gray-600">Pilih Pelanggan</label>
+        {% if edit %}
+            <!-- Tampilkan Select2 tapi disabled -->
+            <select class="select2 w-full border border-gray-300 p-2 rounded" disabled>
+                {% for p in pelanggan_data %}
+                <option value="{{ p[0] }}" {% if p[0] == selected_pelanggan %}selected{% endif %}>
+                    {{ p[0] }} - {{ p[1] }}
+                </option>
+                {% endfor %}
+            </select>
+            <!-- Hidden input agar nilai tetap dikirim -->
+            <input type="hidden" name="id_pelanggan" value="{{ selected_pelanggan }}">
+        {% else %}
+            <!-- Mode Tambah -->
+            <select name="id_pelanggan" required class="select2 w-full border border-gray-300 p-2 rounded" >
+                {% for p in pelanggan_data %}
+                <option value="{{ p[0] }}" {% if p[0] == selected_pelanggan %}selected{% endif %}>
+                    {{ p[0] }} - {{ p[1] }}
+                </option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+
+<!-- Daftar Barang -->
+<!-- Daftar Barang -->
+<div id="barangContainer" class="space-y-4">
+    {% if edit %}
+        {% for row in baris %}
+        <div class="barang-row space-y-2 md:space-y-0">
+    <!-- Select Barang -->
+    <div>
+        <select name="id_barang[]" required class="select2 border border-gray-300 p-2 rounded w-full">
+            {% for b in barang_data %}
+            <option value="{{ b[0] }}" {% if b[0] == row[3] %}selected{% endif %}>
+                {{ b[1] }} - {{ b[4] }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Input baris kedua -->
+    <div class="flex gap-2 w-full">
+        <input type="number" name="jumlah[]" value="{{ row[5] }}" required class="border p-2 rounded w-full max-w-[60px]">
+        <input type="text" name="harga_jual[]" value="{{ row[6] }}" required class="harga-format border p-2 rounded w-full max-w-[140px]">
+        <span class="text-xs text-gray-500 harga-info md:block w-32"></span>
+        <button type="button" onclick="hapusBaris(this)" class="text-red-600 text-xl px-2">✖</button>
+    </div>
+</div>
+        {% endfor %}
+    {% else %}
+        <!-- Diisi lewat JS dari template -->
+         
+    {% endif %}
+</div>
+
+<!-- Template untuk Baris Barang -->
+<!-- Template untuk Baris Barang -->
+<template id="templateBarang">
+    <hr class="my-4">
+    <div class="barang-row space-y-2 md:space-y-0 ">
+        <!-- Select Barang -->
+        <div>
+            <select name="id_barang[]" required class="select2 border border-gray-300 p-2 rounded w-full">
+                {% for b in barang_data %}
+                <option value="{{ b[0] }}">{{ b[1] }} - {{ b[4] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Baris input (jumlah, harga jual, info harga, tombol hapus) -->
+        <div class="flex gap-2 w-full">
+            <input type="number" name="jumlah[]" placeholder="Jml" required class="border p-2 rounded w-full max-w-[60px]">
+            <input type="text" name="harga_jual[]" placeholder="Harga Jual" required class="harga-format border p-2 rounded w-full max-w-[140px]">
+            <span class="text-xs text-gray-500 harga-info md:block w-32"></span>
+            <button type="button" onclick="hapusBaris(this)" class="text-red-600 text-xl px-2">✖</button>
+        </div>
+    </div>
+</template>
+
+
+
+    <!-- Tambah baris barang -->
+    <button type="button" onclick="tambahBaris()" class="bg-gray-300 px-3 py-1 rounded">
+        + Tambah Barang
+    </button>
+
+    <!-- Jenis Transaksi -->
+    <div>
+        <label class="block text-gray-600">Jenis Transaksi</label>
+        <select name="catatan" required class="select2 w-full border border-gray-300 p-2 rounded">
+            <option>--Pilih Catatan--</option>
+            <option value="tunai">Tunai</option>
+            <option value="hutang">Hutang</option>
+            <option value="grosir">Grosir</option>
+            <option value="ecer">Ecer</option>
+        </select>
+    </div>
+
+    <!-- Submit -->
+    <div>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            Simpan & Kirim Nota
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %} 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const formatter = new Intl.NumberFormat('id-ID'); // Format Indonesia (titik ribuan)
+
+  // Format saat ketik
+  document.querySelectorAll('.harga-format').forEach(function (input) {
+    // Inisialisasi (jika sudah ada value dari server)
+    let clean = input.value.replace(/\./g, '');
+    if (clean) input.value = formatter.format(clean);
+
+    input.addEventListener('input', function () {
+      let value = this.value.replace(/\D/g, '');
+      if (!value) {
+        this.value = '';
+        return;
+      }
+      this.value = formatter.format(value);
+    });
+
+    // Saat submit, ubah ke angka murni (tanpa titik)
+    const form = input.closest('form');
+    if (form) {
+      form.addEventListener('submit', function () {
+        document.querySelectorAll('.harga-format').forEach(function (input) {
+          input.value = input.value.replace(/\./g, '');
+        });
+      });
+    }
+  });
+});
+</script>
+
+
+<script>
+const hargaTerakhir = {{ harga_terakhir | tojson }};
+
+function tambahBaris() {
+    const container = document.getElementById("barangContainer");
+    const template = document.getElementById("templateBarang").content.cloneNode(true);
+    container.appendChild(template);
+
+    // Inisialisasi Select2 ulang untuk semua select yang belum diinisialisasi
+    $(container).find("select.select2").each(function () {
+        if (!$(this).hasClass("select2-hidden-accessible")) {
+            $(this).select2();
+        }
+    });
+
+    // Pasang listener updateHarga
+    container.querySelectorAll("select[name='id_barang[]']").forEach(select => {
+        select.onchange = () => updateHarga(select);
+        updateHarga(select);
+    });
+}
+
+function hapusBaris(btn) {
+    const container = document.getElementById("barangContainer");
+    if (container.querySelectorAll(".barang-row").length > 1) {
+        btn.closest(".barang-row").remove();
+    }
+}
+
+function updateHarga(selectElem) {
+    const id = selectElem.value;
+    const row = selectElem.closest(".barang-row");
+    const span = row.querySelector(".harga-info");
+    const harga = hargaTerakhir[id] || 0;
+    span.textContent = "beli : Rp" + harga.toLocaleString();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    $('.select2').select2();
+
+    // Pasang listener updateHarga ke semua select id_barang[] yang sudah ada (mode edit)
+    document.querySelectorAll("select[name='id_barang[]']").forEach(select => {
+        select.onchange = () => updateHarga(select);
+        updateHarga(select); // langsung update harga untuk nilai awal
+    });
+
+    // Tambah satu baris awal jika tidak edit
+    {% if not edit %}
+        tambahBaris();
+    {% endif %}
+});
+</script>
+{% endblock %}
